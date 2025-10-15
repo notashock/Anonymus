@@ -58,10 +58,12 @@ public class ChatController {
     @GetMapping("/messages/{sessionId}")
     public List<Message> getMessages(@PathVariable Long sessionId) {
         return chatService.getMessages(sessionId);
+
     }
     // Get all online users
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
+        System.out.println("done");
         return chatService.getOnlineUsers();
     }
 
