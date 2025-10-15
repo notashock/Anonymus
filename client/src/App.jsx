@@ -4,7 +4,7 @@ import WelcomePage from "./pages/WelcomePage";
 import ChatPage from "./pages/ChatPage";
 
 function App() {
-  const [user, setUser] = useState("user1");
+  const [user, setUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
 
   if (!user) {

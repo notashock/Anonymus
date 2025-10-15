@@ -1,11 +1,11 @@
-package com.Anonymus_Backend.Backend.service;
+package com.Anonymus_Backend.service;
 
-import com.Anonymus_Backend.Backend.model.ChatSession;
-import com.Anonymus_Backend.Backend.model.Message;
-import com.Anonymus_Backend.Backend.model.User;
-import com.Anonymus_Backend.Backend.repository.ChatSessionRepository;
-import com.Anonymus_Backend.Backend.repository.MessageRepository;
-import com.Anonymus_Backend.Backend.repository.UserRepository;
+import com.Anonymus_Backend.model.ChatSession;
+import com.Anonymus_Backend.model.Message;
+import com.Anonymus_Backend.model.User;
+import com.Anonymus_Backend.repository.ChatSessionRepository;
+import com.Anonymus_Backend.repository.MessageRepository;
+import com.Anonymus_Backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;

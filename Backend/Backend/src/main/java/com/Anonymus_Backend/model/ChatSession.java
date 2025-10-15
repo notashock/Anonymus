@@ -1,4 +1,4 @@
-package com.Anonymus_Backend.Backend.model;
+package com.Anonymus_Backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;

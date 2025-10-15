@@ -1,10 +1,10 @@
-package com.Anonymus_Backend.Backend.controller;
+package com.Anonymus_Backend.controller;
 
-import com.Anonymus_Backend.Backend.model.ChatMessageRequest;
-import com.Anonymus_Backend.Backend.model.ChatSession;
-import com.Anonymus_Backend.Backend.model.Message;
-import com.Anonymus_Backend.Backend.model.User;
-import com.Anonymus_Backend.Backend.service.ChatService;
+import com.Anonymus_Backend.model.ChatMessageRequest;
+import com.Anonymus_Backend.model.ChatSession;
+import com.Anonymus_Backend.model.Message;
+import com.Anonymus_Backend.model.User;
+import com.Anonymus_Backend.service.ChatService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,9 +51,6 @@ public class ChatController {
                 request.getContent()
         );
     }
-
-
-
 
     @GetMapping("/messages/{sessionId}")
     public List<Message> getMessages(@PathVariable Long sessionId) {

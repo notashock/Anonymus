@@ -1,6 +1,6 @@
-package com.Anonymus_Backend.Backend.repository;
+package com.Anonymus_Backend.repository;
 
-import com.Anonymus_Backend.Backend.model.Message;
+import com.Anonymus_Backend.model.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

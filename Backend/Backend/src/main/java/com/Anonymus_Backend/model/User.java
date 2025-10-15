@@ -1,13 +1,12 @@
-package com.Anonymus_Backend.Backend.model;
+package com.Anonymus_Backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class User {
 
     @Id

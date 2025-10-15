@@ -1,10 +1,12 @@
-package com.Anonymus_Backend.Backend.model;
+package com.Anonymus_Backend.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageRequest {
@@ -12,6 +14,3 @@ public class ChatMessageRequest {
     private String senderEmail;
     private String content;
 }
-
-
-
