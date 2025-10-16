@@ -1,162 +1,175 @@
-import React, { useState, useEffect, useRef } from "react";
+// src/pages/ChatPage.jsx
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  connectWebSocket,
+  sendMessage,
+  disconnectWebSocket,
+} from "../api/websocket";
+import { logoutUser } from "../api/chatApi";
 
-export default function ChatPage({ user }) {
-  const [session, setSession] = useState(null);
+function ChatPage() {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const session = JSON.parse(localStorage.getItem("session"));
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [connectionStatus, setConnectionStatus] = useState("Connecting...");
-  const messagesEndRef = useRef(null);
+  const [connected, setConnected] = useState(false);
+  const [partnerLeft, setPartnerLeft] = useState(false);
 
-  // Scroll to bottom when messages update
+  const messageEndRef = useRef(null);
+
+  // Auto scroll to bottom on new message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
-  // Determine connected user
-  const connectedUser =
-    session?.user1.email === user.email ? session?.user2 : session?.user1;
-
-  // 🧠 Fetch or create session when user logs in
+  // Initialize WebSocket connection
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const pairRes = await fetch("http://localhost:8080/api/chat/pair", {
-          method: "POST",
-        });
+    if (!user || !session) {
+      navigate("/");
+      return;
+    }
 
-        if (pairRes.ok) {
-          const newSession = await pairRes.json();
-          console.log("🔗 New session created:", newSession);
-          setSession(newSession);
-          setConnectionStatus(
-            `Connected to ${newSession.user1.email === user.email ? newSession.user2.email : newSession.user1.email}`
-          );
+    connectWebSocket(
+      session.id,
+      (msg) => {
+        // Detect system message
+        if (msg.senderEmail === "SYSTEM" && msg.content === "PARTNER_LEFT") {
+          setPartnerLeft(true);
         } else {
-          setConnectionStatus("Waiting for another user to join...");
+          setMessages((prev) => [...prev, msg]);
         }
-      } catch (err) {
-        console.error("❌ Error connecting:", err);
-        setConnectionStatus("Connection error");
-      }
+      },
+      () => setConnected(true)
+    );
+
+    return () => {
+      disconnectWebSocket();
     };
+  }, [session?.id]);
 
-    fetchSession();
-  }, [user]);
-
-  // 📨 Fetch messages every few seconds
-  useEffect(() => {
-    if (!session) return;
-
-    const fetchMessages = async () => {
-      try {
-        const res = await fetch(
-          `http://localhost:8080/api/chat/messages/${session.id}`
-        );
-        if (res.ok) {
-          const msgs = await res.json();
-          setMessages(msgs);
-        }
-      } catch (err) {
-        console.error("❌ Error fetching messages:", err);
-      }
-    };
-
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
-
-    return () => clearInterval(interval);
-  }, [session]);
-
-  // ✉️ Send message
-  const handleSend = async () => {
-    if (!input.trim() || !session) return;
-
-    const messageData = {
-      sessionId: session.id,
-      senderEmail: user.email,
-      content: input,
-    };
-
-    try {
-      const res = await fetch("http://localhost:8080/api/chat/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(messageData),
-      });
-
-      if (res.ok) {
-        const newMsg = await res.json();
-        setMessages((prev) => [...prev, newMsg]);
-        setInput("");
-        console.log("📤 Message sent:", newMsg);
-      } else {
-        console.error("❌ Failed to send message:", await res.text());
-      }
-    } catch (err) {
-      console.error("❌ Error sending message:", err);
+  const handleSend = () => {
+    if (!partnerLeft && input.trim()) {
+      const newMsg = {
+        senderEmail: user.email,
+        content: input,
+        sessionId: session.id,
+      };
+      sendMessage(session.id, user.email, input);
+      setMessages((prev) => [...prev, newMsg]);
+      setInput("");
     }
   };
 
-  // 🟢 Connection log heartbeat
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("🟢 Connection status:", connectionStatus);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [connectionStatus]);
+  const handleLogout = async () => {
+    try {
+      await logoutUser(user.email);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      localStorage.clear();
+      disconnectWebSocket();
+      navigate("/");
+    }
+  };
+
+  const handleFindPartner = () => {
+    localStorage.removeItem("session");
+    navigate("/pair");
+  };
+
+  if (!user || !session) {
+    return (
+      <div className="h-screen flex items-center justify-center text-gray-600">
+        Session expired. Please log in again.
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
-      <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">Campus Chat</h2>
-          {connectedUser && (
-            <span className="text-sm">
-              You: {user.name} ↔ Chatting with: {connectedUser.email}
-            </span>
-          )}
+      <div className="flex justify-between items-center bg-indigo-600 text-white px-6 py-4 shadow-md">
+        <h2 className="text-xl font-semibold">Anonymous Chat</h2>
+        <div className="flex items-center gap-4">
+          <p className="text-sm">{user.email}</p>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 px-3 py-1 rounded-lg hover:bg-red-600 text-sm"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Connection status */}
-      <div className="text-center text-sm text-gray-600 py-1 bg-gray-200">
-        {connectionStatus}
-      </div>
+      {/* Chat Box */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+        {messages.length === 0 && !partnerLeft && (
+          <p className="text-gray-500 text-center mt-10">
+            {connected ? "No messages yet..." : "Connecting..."}
+          </p>
+        )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, index) => (
+        {messages.map((msg, i) => (
           <div
-            key={index}
-            className={`p-3 rounded-lg max-w-xs ${
-              msg.senderEmail === user.email
-                ? "bg-indigo-100 self-end ml-auto"
-                : "bg-white self-start"
+            key={i}
+            className={`flex ${
+              msg.senderEmail === user.email ? "justify-end" : "justify-start"
             }`}
           >
-            <span className="text-sm font-semibold">
-              {msg.senderEmail === user.email ? "You" : msg.senderEmail}
-            </span>
-            <p className="text-gray-800 break-words">{msg.content}</p>
+            <div
+              className={`max-w-xs p-3 rounded-2xl text-sm ${
+                msg.senderEmail === user.email
+                  ? "bg-indigo-600 text-white rounded-br-none"
+                  : "bg-gray-300 text-gray-800 rounded-bl-none"
+              }`}
+            >
+              <p>{msg.content}</p>
+            </div>
           </div>
         ))}
-        <div ref={messagesEndRef} />
+
+        {/* Partner left notification */}
+        {partnerLeft && (
+          <div className="text-center text-red-600 mt-4 font-semibold">
+            Your partner has left the chat.
+            <button
+              onClick={handleFindPartner}
+              className="ml-2 bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
+            >
+              Find Partner
+            </button>
+          </div>
+        )}
+
+        <div ref={messageEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 bg-white flex gap-2">
+      {/* Input Box */}
+      <div className="flex items-center gap-3 p-4 bg-white border-t">
         <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          placeholder={
+            partnerLeft ? "Waiting to find a new partner..." : "Type a message..."
+          }
+          disabled={partnerLeft}
+          className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          type="text"
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
         />
         <button
           onClick={handleSend}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          disabled={partnerLeft}
+          className={`px-6 py-2 rounded-full transition ${
+            partnerLeft
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 text-white hover:bg-indigo-700"
+          }`}
         >
           Send
         </button>
@@ -164,3 +177,5 @@ export default function ChatPage({ user }) {
     </div>
   );
 }
+
+export default ChatPage;
