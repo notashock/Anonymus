@@ -12,28 +12,14 @@ export default function ChatPage({ user }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Determine connected user
+  const connectedUser =
+    session?.user1.email === user.email ? session?.user2 : session?.user1;
+
   // 🧠 Fetch or create session when user logs in
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        console.log("🔄 Checking existing chat session...");
-
-        const existingRes = await fetch(
-          `http://localhost:8080/api/chat/session/${user.email}`
-        );
-
-        if (existingRes.ok) {
-          const sessionData = await existingRes.json();
-          if (sessionData && sessionData.id) {
-            console.log("✅ Existing session found:", sessionData);
-            setSession(sessionData);
-            setConnectionStatus("Connected to session " + sessionData.id);
-            return;
-          }
-        }
-
-        console.log("⚙️ No existing session found, pairing now...");
-
         const pairRes = await fetch("http://localhost:8080/api/chat/pair", {
           method: "POST",
         });
@@ -42,7 +28,9 @@ export default function ChatPage({ user }) {
           const newSession = await pairRes.json();
           console.log("🔗 New session created:", newSession);
           setSession(newSession);
-          setConnectionStatus("Connected to session " + newSession.id);
+          setConnectionStatus(
+            `Connected to ${newSession.user1.email === user.email ? newSession.user2.email : newSession.user1.email}`
+          );
         } else {
           setConnectionStatus("Waiting for another user to join...");
         }
@@ -57,7 +45,7 @@ export default function ChatPage({ user }) {
 
   // 📨 Fetch messages every few seconds
   useEffect(() => {
-    if (!session) return;0
+    if (!session) return;
 
     const fetchMessages = async () => {
       try {
@@ -74,7 +62,7 @@ export default function ChatPage({ user }) {
     };
 
     fetchMessages();
-    const interval = setInterval(fetchMessages, 3000); // poll every 3 seconds
+    const interval = setInterval(fetchMessages, 3000);
 
     return () => clearInterval(interval);
   }, [session]);
@@ -121,8 +109,14 @@ export default function ChatPage({ user }) {
     <div className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
       <div className="bg-indigo-600 text-white p-4 flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Campus Chat</h2>
-        <span>{user.name}</span>
+        <div>
+          <h2 className="text-xl font-semibold">Campus Chat</h2>
+          {connectedUser && (
+            <span className="text-sm">
+              You: {user.name} ↔ Chatting with: {connectedUser.email}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Connection status */}

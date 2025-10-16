@@ -13,6 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/chat")
 @CrossOrigin
+
 public class ChatController {
     private final ChatService chatService;
 
@@ -52,15 +53,18 @@ public class ChatController {
         );
     }
 
+    @GetMapping("/session/{email}")
+    public ChatSession getActiveSession(@PathVariable String email) {
+        return chatService.getActiveSessionForUser(email);
+    }
+
     @GetMapping("/messages/{sessionId}")
     public List<Message> getMessages(@PathVariable Long sessionId) {
         return chatService.getMessages(sessionId);
-
     }
     // Get all online users
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
-        System.out.println("done");
         return chatService.getOnlineUsers();
     }
 
