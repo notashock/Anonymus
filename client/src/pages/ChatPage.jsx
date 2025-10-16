@@ -61,7 +61,7 @@ export default function ChatPage({ user }) {
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(3
+        const res = await fetch(
           `http://localhost:8080/api/chat/messages/${session.id}`
         );
         if (res.ok) {
