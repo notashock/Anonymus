@@ -1,14 +1,20 @@
 package com.Anonymus_Backend.controller;
 
-import com.Anonymus_Backend.model.ChatMessageRequest;
-import com.Anonymus_Backend.model.ChatSession;
-//import com.Anonymus_Backend.model.Message;
-import com.Anonymus_Backend.model.User;
-import com.Anonymus_Backend.service.ChatService;
-import org.springframework.web.bind.annotation.*;
-
+// import com.Anonymus_Backend.model.ChatMessageRequest;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.Anonymus_Backend.model.ChatSession;
+import com.Anonymus_Backend.model.User;
+import com.Anonymus_Backend.service.ChatService;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -26,8 +32,6 @@ public class ChatController {
         String email = body.get("email");
         return chatService.setUserOnline(email);
     }
-
-
 
     @PostMapping("/logout")
     public String logout(@RequestBody Map<String, String> body) {

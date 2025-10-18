@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageRequest {
-    private Long sessionId;
+    private String sessionId;
     private String senderEmail;
     private String content;
 }

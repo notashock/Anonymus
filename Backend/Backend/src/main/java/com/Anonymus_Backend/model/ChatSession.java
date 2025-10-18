@@ -1,22 +1,21 @@
 package com.Anonymus_Backend.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-@Entity
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "chat_sessions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ChatSession {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;  // MongoDB uses String IDs
 
-    @ManyToOne
-    private User user1;
-
-    @ManyToOne
-    private User user2;
+    private String user1Id;  // store User's ID
+    private String user2Id;
 
     private boolean active;
 }

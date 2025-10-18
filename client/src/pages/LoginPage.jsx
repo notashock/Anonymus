@@ -1,55 +1,38 @@
 // src/pages/LoginPage.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/chatApi";
 
 function LoginPage() {
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!email.trim()) {
-      alert("Please enter your email");
-      return;
-    }
-
+  const handleGoogleLogin = () => {
     setLoading(true);
-    try {
-      const user = await loginUser(email.trim());
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/pair"); // Go to pair page
-    } catch (error) {
-      console.error(error);
-      alert("Login failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+    window.location.href = `${baseUrl}/oauth2/authorization/google`;
   };
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          🔒 Anonymous Chat Login
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-96 text-center">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+          Anonymous Chat Login
         </h1>
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+
+        <button
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition disabled:opacity-70"
+        >
+          <img
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="Google Logo"
+            className="w-5 h-5"
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+          {loading ? "Redirecting..." : "Continue with Google"}
+        </button>
+
+        <p className="text-gray-500 text-sm mt-4">
+          Only college accounts are allowed
+        </p>
       </div>
     </div>
   );
