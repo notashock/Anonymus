@@ -1,6 +1,6 @@
 // src/pages/PairPage.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   pairUsers,
   getOnlineUserCount,
@@ -12,26 +12,38 @@ function PairPage() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [waitingMessage, setWaitingMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get user email from redirect query
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const email = params.get("email");
+
+    if (!email) {
+      navigate("/"); // if no email, not logged in
+      return;
+    }
+
+    // store user in localStorage
+    const userObj = { email };
+    localStorage.setItem("user", JSON.stringify(userObj));
+  }, [location.search, navigate]);
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   // Check if user has an active session on mount
   useEffect(() => {
-    if (!user) {
-      navigate("/"); // redirect if not logged in
-      return;
-    }
+    if (!user) return;
 
     const checkActiveSession = async () => {
       try {
         const session = await getActiveSession(user.email);
         if (session) {
-          // Redirect to existing session
           localStorage.setItem("session", JSON.stringify(session));
           navigate("/chat");
         }
       } catch (err) {
         console.error("No active session found:", err);
-        // continue to show pair button
       }
     };
 
@@ -45,18 +57,14 @@ function PairPage() {
         const res = await getOnlineUserCount();
         const count = res.onlineUsers || 0;
         setOnlineCount(count);
-        if (count < 2) {
-          setWaitingMessage("Waiting for more users to come online...");
-        } else {
-          setWaitingMessage("");
-        }
+        setWaitingMessage(count < 2 ? "Waiting for more users to come online..." : "");
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchOnline();
-    const interval = setInterval(fetchOnline, 3000); // faster polling for pairing
+    const interval = setInterval(fetchOnline, 3000);
     return () => clearInterval(interval);
   }, []);
 
