@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,36 +41,37 @@ public class ChatService {
             user.setOnline(false);
             userRepo.save(user);
 
-            // Find active sessions for this user
+            String userId = user.getId();
+
             List<ChatSession> sessions = sessionRepo.findAll().stream()
                     .filter(ChatSession::isActive)
-                    .filter(s -> (s.getUser1() != null && s.getUser1().getEmail().equals(email)) ||
-                            (s.getUser2() != null && s.getUser2().getEmail().equals(email)))
+                    .filter(s -> userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id()))
                     .collect(Collectors.toList());
 
             for (ChatSession session : sessions) {
-                // Remove the user from the session (set to null)
-                if (session.getUser1() != null && session.getUser1().getEmail().equals(email)) {
-                    session.setUser1(null);
-                } else if (session.getUser2() != null && session.getUser2().getEmail().equals(email)) {
-                    session.setUser2(null);
+                if (userId.equals(session.getUser1Id())) {
+                    session.setUser1Id(null);
+                } else if (userId.equals(session.getUser2Id())) {
+                    session.setUser2Id(null);
                 }
-
-                // Delete messages for this user (if using messageRepo)
-                // messageRepo.deleteAll(messageRepo.findByChatSessionIdAndSenderEmail(session.getId(), email));
 
                 sessionRepo.save(session);
 
                 // Notify the other user
-                User otherUser = (session.getUser1() != null) ? session.getUser1() :
-                        (session.getUser2() != null) ? session.getUser2() : null;
+                String otherUserId = (session.getUser1Id() != null)
+                        ? session.getUser1Id()
+                        : (session.getUser2Id() != null ? session.getUser2Id() : null);
 
-                if (otherUser != null && otherUser.isOnline()) {
-                    ChatMessageRequest systemMsg = new ChatMessageRequest();
-                    systemMsg.setSessionId(session.getId());
-                    systemMsg.setSenderEmail("SYSTEM");
-                    systemMsg.setContent("PARTNER_LEFT");
-                    messagingTemplate.convertAndSend("/topic/session/" + session.getId(), systemMsg);
+                if (otherUserId != null) {
+                    userRepo.findById(otherUserId).ifPresent(otherUser -> {
+                        if (otherUser.isOnline()) {
+                            ChatMessageRequest systemMsg = new ChatMessageRequest();
+                            systemMsg.setSessionId(session.getId());
+                            systemMsg.setSenderEmail("SYSTEM");
+                            systemMsg.setContent("PARTNER_LEFT");
+                            messagingTemplate.convertAndSend("/topic/session/" + session.getId(), systemMsg);
+                        }
+                    });
                 }
             }
         });
@@ -87,44 +89,40 @@ public class ChatService {
         Collections.shuffle(availableUsers);
         User userToPair = availableUsers.get(0);
 
-        // Try to find a session with an empty slot
         ChatSession sessionWithEmptySlot = sessionRepo.findAll().stream()
                 .filter(ChatSession::isActive)
-                .filter(s -> s.getUser1() == null || s.getUser2() == null)
+                .filter(s -> s.getUser1Id() == null || s.getUser2Id() == null)
                 .findFirst()
                 .orElse(null);
 
         if (sessionWithEmptySlot != null) {
-            if (sessionWithEmptySlot.getUser1() == null) {
-                sessionWithEmptySlot.setUser1(userToPair);
+            if (sessionWithEmptySlot.getUser1Id() == null) {
+                sessionWithEmptySlot.setUser1Id(userToPair.getId());
             } else {
-                sessionWithEmptySlot.setUser2(userToPair);
+                sessionWithEmptySlot.setUser2Id(userToPair.getId());
             }
             sessionRepo.save(sessionWithEmptySlot);
             return sessionWithEmptySlot;
         }
 
-        // Otherwise, create a new session if there are at least 2 available users
-        if (availableUsers.size() < 2) {
-            return null;
-        }
+        if (availableUsers.size() < 2) return null;
 
         User user2 = availableUsers.get(1);
         ChatSession newSession = ChatSession.builder()
-                .user1(userToPair)
-                .user2(user2)
+                .user1Id(userToPair.getId())
+                .user2Id(user2.getId())
                 .active(true)
                 .build();
 
         return sessionRepo.save(newSession);
     }
 
-    // Check if user already has an active session (null-safe)
+    // Check if user already has an active session
     private boolean isUserInActiveSession(User user) {
+        String userId = user.getId();
         return sessionRepo.findAll().stream()
                 .anyMatch(s -> s.isActive() &&
-                        ((s.getUser1() != null && s.getUser1().getId().equals(user.getId())) ||
-                                (s.getUser2() != null && s.getUser2().getId().equals(user.getId()))));
+                        (userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id())));
     }
 
     // Get list of all online users
@@ -137,12 +135,16 @@ public class ChatService {
         return userRepo.findByOnlineTrue().size();
     }
 
-    // Get active session for a specific user
+    // Get active session for a specific user email (resolve email → userId first)
     public ChatSession getActiveSessionForUser(String email) {
+        Optional<User> userOpt = userRepo.findByEmail(email);
+        if (userOpt.isEmpty()) return null;
+
+        String userId = userOpt.get().getId();
+
         return sessionRepo.findAll().stream()
                 .filter(ChatSession::isActive)
-                .filter(s -> (s.getUser1() != null && s.getUser1().getEmail().equals(email)) ||
-                        (s.getUser2() != null && s.getUser2().getEmail().equals(email)))
+                .filter(s -> userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id()))
                 .findFirst()
                 .orElse(null);
     }

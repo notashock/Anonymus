@@ -1,8 +1,11 @@
 package com.Anonymus_Backend.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-@Entity
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "users")
 @Data
 @Builder
 @NoArgsConstructor
@@ -10,13 +13,12 @@ import lombok.*;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;  // Stored as ObjectId in Mongo
 
-    @Column(unique = true, nullable = false)
-    private String email; // College email used for login (via OAuth later)
+    @Indexed(unique = true)
+    private String email;  // Enforce uniqueness at DB level
 
     private boolean online;
 
-    private String socketId; // For real-time connection tracking
+    private String socketId;
 }
