@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+// src/App.jsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import WelcomePage from "./pages/WelcomePage";
-import ChatPage from "./pages/ChatPage";
+import PairPage from "./pages/PairPage";
+import ChatPage from "./pages/ChatPage"; // You already have this partially
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [showLogin, setShowLogin] = useState(false);
-
-  if (!user) {
-    return showLogin ? (
-      <LoginPage setUser={setUser} />
-    ) : (
-      <WelcomePage setUser={() => setShowLogin(true)} />
-    );
-  }
-
-  return <ChatPage user={user} />;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/pair" element={<PairPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

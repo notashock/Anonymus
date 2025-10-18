@@ -2,7 +2,7 @@ package com.Anonymus_Backend.controller;
 
 import com.Anonymus_Backend.model.ChatMessageRequest;
 import com.Anonymus_Backend.model.ChatSession;
-import com.Anonymus_Backend.model.Message;
+//import com.Anonymus_Backend.model.Message;
 import com.Anonymus_Backend.model.User;
 import com.Anonymus_Backend.service.ChatService;
 import org.springframework.web.bind.annotation.*;
@@ -44,29 +44,30 @@ public class ChatController {
         return session;
     }
 
-    @PostMapping("/messages")
-    public Message sendMessage(@RequestBody ChatMessageRequest request) {
-        return chatService.sendMessage(
-                request.getSessionId(),
-                request.getSenderEmail(),
-                request.getContent()
-        );
-    }
+//    @PostMapping("/messages")
+//    public Message sendMessage(@RequestBody ChatMessageRequest request) {
+//        return chatService.sendMessage(
+//                request.getSessionId(),
+//                request.getSenderEmail(),
+//                request.getContent()
+//        );
+//    }
 
     @GetMapping("/session/{email}")
     public ChatSession getActiveSession(@PathVariable String email) {
         return chatService.getActiveSessionForUser(email);
     }
 
-    @GetMapping("/messages/{sessionId}")
-    public List<Message> getMessages(@PathVariable Long sessionId) {
-        return chatService.getMessages(sessionId);
-    }
+//    @GetMapping("/messages/{sessionId}")
+//    public List<Message> getMessages(@PathVariable Long sessionId) {
+//        return chatService.getMessages(sessionId);
+//    }
     // Get all online users
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
         return chatService.getOnlineUsers();
     }
+
 
     // Get count of online users
     @GetMapping("/online/count")
