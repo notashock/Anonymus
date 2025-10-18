@@ -1,6 +1,6 @@
 package com.Anonymus_Backend.controller;
 
-// import com.Anonymus_Backend.model.ChatMessageRequest;
+import com.Anonymus_Backend.model.ChatMessageRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +32,6 @@ public class ChatController {
         String email = body.get("email");
         return chatService.setUserOnline(email);
     }
-
-
 
     @PostMapping("/logout")
     public String logout(@RequestBody Map<String, String> body) {

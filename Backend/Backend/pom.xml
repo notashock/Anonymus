@@ -43,6 +43,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
+        </dependency>
 
         <!-- Lombok for boilerplate -->
         <dependency>
@@ -50,7 +55,14 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <!-- Dev tools for hot reload -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
