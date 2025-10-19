@@ -6,7 +6,7 @@ let stompClient = null;
 let connected = false;
 
 // Use .env variable for backend URL
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 /**
  * Connect to WebSocket server and subscribe to a specific chat session.
