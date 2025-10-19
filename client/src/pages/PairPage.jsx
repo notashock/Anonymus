@@ -1,38 +1,66 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  pairUsers,
-  getOnlineUserCount,
-  getCurrentUser,
-} from "../api/chatApi";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { pairUsers, getOnlineUserCount, getCurrentUser } from "../api/chatApi";
 
 function PairPage() {
   const [loading, setLoading] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
   const [waitingMessage, setWaitingMessage] = useState("");
   const [user, setUser] = useState(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const API_BASE = import.meta.env.VITE_BASE_URL;
 
-  // ✅ Fetch authenticated user on mount
+  // ✅ Check email param from redirect
   useEffect(() => {
-    const fetchUser = async () => {
+    const emailParam = searchParams.get("email");
+
+    const verifyUser = async (email) => {
       try {
-        const currentUser = await getCurrentUser();
-        if (currentUser?.email) {
-          setUser(currentUser);
-          localStorage.setItem("user", JSON.stringify(currentUser));
+        // Check if user exists in DB
+        const res = await fetch(`${API_BASE}/api/chat/userExists?email=${email}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const exists = await res.json();
+
+        if (exists?.exists) {
+          // ✅ Save user info
+          const userObj = { email };
+          setUser(userObj);
+          localStorage.setItem("user", JSON.stringify(userObj));
         } else {
-          console.log("not logged in") // redirect if not authenticated
+          console.warn("User not found in DB, redirecting to login...");
+          navigate("/"); // Redirect to login if not found
         }
       } catch (err) {
-        console.error("Error fetching current user:", err);
+        console.error("Error verifying user:", err);
         navigate("/");
       }
     };
-    fetchUser();
-  }, [navigate]);
+
+    // If email param present from redirect, verify it
+    if (emailParam) {
+      verifyUser(emailParam);
+    } else {
+      // fallback: check backend current user (in case of refresh)
+      (async () => {
+        try {
+          const currentUser = await getCurrentUser();
+          if (currentUser?.email) {
+            setUser(currentUser);
+            localStorage.setItem("user", JSON.stringify(currentUser));
+          } else {
+            navigate("/");
+          }
+        } catch (err) {
+          console.error("Error fetching current user:", err);
+          navigate("/");
+        }
+      })();
+    }
+  }, [searchParams, navigate, API_BASE]);
 
   // ✅ Poll online user count
   useEffect(() => {
@@ -55,8 +83,8 @@ function PairPage() {
   // ✅ Pair user (backend now handles session reuse)
   const handlePair = async () => {
     if (!user) return;
-
     setLoading(true);
+
     try {
       const session = await pairUsers();
       if (!session) {
@@ -64,6 +92,7 @@ function PairPage() {
         setLoading(false);
         return;
       }
+
       localStorage.setItem("session", JSON.stringify(session));
       navigate("/chat");
     } catch (err) {
@@ -74,7 +103,7 @@ function PairPage() {
     }
   };
 
-  // ✅ Logout handler
+  // ✅ Logout handler (includes backend logout + google revoke)
   const handleLogout = async () => {
     try {
       await fetch(`${API_BASE}/api/chat/logout`, {
@@ -91,7 +120,7 @@ function PairPage() {
     }
   };
 
-  // ✅ Auto-redirect if session already exists in localStorage
+  // ✅ Auto-redirect if session already exists
   useEffect(() => {
     const session = localStorage.getItem("session");
     if (session) navigate("/chat");

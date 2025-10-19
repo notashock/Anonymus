@@ -171,8 +171,8 @@ public class ChatService {
     }
 
     // Get user by email
-    public User getUserByEmail(String email) {
-        if (email == null || email.isEmpty()) return null;
-        return userRepo.findByEmail(email).orElse(null);
+    public boolean userExists(String email) {
+    return userRepo.findByEmail(email).isPresent();
     }
+
 }

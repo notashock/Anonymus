@@ -76,12 +76,12 @@ export const getOnlineUserCount = async () => {
 };
 
 // ✅ Get currently authenticated user (OAuth)
-export const getCurrentUser = async () => {
-  try {
-    const res = await api.get("/me");
-    return res.data;
-  } catch (err) {
-    console.error("Fetching current user failed:", err);
-    throw err;
-  }
-};
+// export const getCurrentUser = async () => {
+//   try {
+//     const res = await api.get("/me");
+//     return res.data;
+//   } catch (err) {
+//     console.error("Fetching current user failed:", err);
+//     throw err;
+//   }
+// };

@@ -1,6 +1,8 @@
 package com.Anonymus_Backend.config;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final ChatService chatService;
 
-    @Value("${FRONTEND_URL}") // inject frontend URL from environment
+    @Value("${FRONTEND_URL}")
     private String frontendUrl;
 
     public CustomOAuth2SuccessHandler(ChatService chatService) {
@@ -36,13 +38,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = oauthUser.getAttribute("email");
 
         if (email != null) {
-            // Set user online in backend
+            // Mark user online
             chatService.setUserOnline(email);
 
-            // Redirect frontend to pair page using environment variable
-            response.sendRedirect(frontendUrl + "/pair");
+            // URL-encode the email to avoid special character issues
+            String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+
+            // Redirect to frontend with email as query param
+            String redirectUrl = String.format("%s/pair?email=%s", frontendUrl, encodedEmail);
+            response.sendRedirect(redirectUrl);
         } else {
-            // fallback redirect if no email found
             response.sendRedirect(frontendUrl + "/");
         }
     }

@@ -6,14 +6,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Anonymus_Backend.model.ChatSession;
@@ -87,16 +86,24 @@ public class ChatController {
     }
 
     // New endpoint to get the authenticated user's email
-    @GetMapping("/me")
-    public User getCurrentUser(Authentication authentication) {
-        if (authentication == null) {
-            return null;
-        }
-        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-        String email = oauthUser.getAttribute("email");
-        if (email != null) {
-            return chatService.getUserByEmail(email); // Make sure this method exists in your service
-        }
-        return null;
+    // @GetMapping("/me")
+    // public User getCurrentUser(Authentication authentication) {
+    //     if (authentication == null) {
+    //         return null;
+    //     }
+    //     OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+    //     String email = oauthUser.getAttribute("email");
+    //     if (email != null) {
+    //         return chatService.getUserByEmail(email); // Make sure this method exists in your service
+    //     }
+    //     return null;
+    // }
+
+    @GetMapping("/userExists")
+    public Map<String, Boolean> userExists(@RequestParam String email) {
+        boolean exists = chatService.userExists(email);
+        return Map.of("exists", exists);
     }
+
+
 }
