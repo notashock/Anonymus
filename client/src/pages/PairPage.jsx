@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { pairUsers, getOnlineUserCount, getCurrentUser } from "../api/chatApi";
+import { pairUsers, getOnlineUserCount } from "../api/chatApi";
 
 function PairPage() {
   const [loading, setLoading] = useState(false);
@@ -12,13 +12,18 @@ function PairPage() {
 
   const API_BASE = import.meta.env.VITE_BASE_URL;
 
-  // ✅ Check email param from redirect
+  // ✅ Check email param and verify user existence
   useEffect(() => {
     const emailParam = searchParams.get("email");
 
+    if (!emailParam) {
+      console.warn("No email param found. Redirecting to login...");
+      navigate("/");
+      return;
+    }
+
     const verifyUser = async (email) => {
       try {
-        // Check if user exists in DB
         const res = await fetch(`${API_BASE}/api/chat/userExists?email=${email}`, {
           method: "GET",
           credentials: "include",
@@ -26,13 +31,13 @@ function PairPage() {
         const exists = await res.json();
 
         if (exists?.exists) {
-          // ✅ Save user info
+          // ✅ Save verified user
           const userObj = { email };
           setUser(userObj);
           localStorage.setItem("user", JSON.stringify(userObj));
         } else {
           console.warn("User not found in DB, redirecting to login...");
-          navigate("/"); // Redirect to login if not found
+          navigate("/");
         }
       } catch (err) {
         console.error("Error verifying user:", err);
@@ -40,26 +45,7 @@ function PairPage() {
       }
     };
 
-    // If email param present from redirect, verify it
-    if (emailParam) {
-      verifyUser(emailParam);
-    } else {
-      // fallback: check backend current user (in case of refresh)
-      (async () => {
-        try {
-          const currentUser = await getCurrentUser();
-          if (currentUser?.email) {
-            setUser(currentUser);
-            localStorage.setItem("user", JSON.stringify(currentUser));
-          } else {
-            navigate("/");
-          }
-        } catch (err) {
-          console.error("Error fetching current user:", err);
-          navigate("/");
-        }
-      })();
-    }
+    verifyUser(emailParam);
   }, [searchParams, navigate, API_BASE]);
 
   // ✅ Poll online user count
