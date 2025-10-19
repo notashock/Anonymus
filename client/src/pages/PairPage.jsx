@@ -24,7 +24,7 @@ function PairPage() {
           setUser(currentUser);
           localStorage.setItem("user", JSON.stringify(currentUser));
         } else {
-          navigate("/"); // redirect if not authenticated
+          console.log("not logged in") // redirect if not authenticated
         }
       } catch (err) {
         console.error("Error fetching current user:", err);
