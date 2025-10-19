@@ -7,7 +7,7 @@ function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    window.location.href = `${baseUrl}/oauth2/authorization/google`;
+    window.location.href = `${baseUrl}/oauth2/authorization/google?prompt=select_account`;
   };
 
   return (
