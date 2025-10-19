@@ -1,11 +1,7 @@
 // src/pages/ChatPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  connectWebSocket,
-  sendMessage,
-  disconnectWebSocket,
-} from "../api/websocket";
+import { connectWebSocket, sendMessage, disconnectWebSocket } from "../api/websocket";
 import { logoutUser } from "../api/chatApi";
 
 function ChatPage() {
@@ -30,49 +26,35 @@ function ChatPage() {
       return;
     }
 
-    try {
-      connectWebSocket(
-        session.id,
-        (msg) => {
-          if (msg.senderEmail === "SYSTEM" && msg.content === "PARTNER_LEFT") {
-            setStatus("partner_left");
-          } else {
-            // only append if it's NOT your own message (avoid duplication)
-            if (msg.senderEmail !== user.email) {
-              setMessages((prev) => [...prev, msg]);
-            }
-          }
-        },
-        () => setStatus("connected"),
-        () => setStatus("error")
-      );
-    } catch (err) {
-      console.error("WebSocket connection failed:", err);
-      setStatus("error");
-    }
+    connectWebSocket(
+      session.id,
+      (msg) => {
+        if (msg.senderEmail === "SYSTEM" && msg.content === "PARTNER_LEFT") {
+          setStatus("partner_left");
+        } else {
+          setMessages((prev) => [...prev, msg]); // append both user & partner messages
+        }
+      },
+      () => setStatus("connected"),
+      () => setStatus("error")
+    );
 
     return () => disconnectWebSocket();
-  }, [session?.id]);
+  }, [session?.id, user, navigate]);
 
   // Send message handler
   const handleSend = () => {
     if (!input.trim() || status !== "connected") return;
-    const text = input.trim();
-    const newMsg = {
-      senderEmail: user.email,
-      content: text,
-      sessionId: session.id,
-    };
 
-    try {
-      sendMessage(session.id, user.email, text);
-      setMessages((prev) => [...prev, newMsg]); // only local append
-      setInput("");
-    } catch (err) {
-      console.error("Failed to send message:", err);
-    }
+    const text = input.trim();
+    const newMsg = { senderEmail: user.email, content: text, sessionId: session.id };
+
+    sendMessage(session.id, user.email, text);
+    setMessages((prev) => [...prev, newMsg]); // local append
+    setInput("");
   };
 
+  // Logout handler
   const handleLogout = async () => {
     try {
       await logoutUser(user.email);
@@ -107,7 +89,7 @@ function ChatPage() {
       case "partner_left":
         return "Your partner has left the chat.";
       default:
-        return "No messages yet.";
+        return messages.length === 0 ? "No messages yet." : "";
     }
   };
 
@@ -136,10 +118,7 @@ function ChatPage() {
         {messages.map((msg, i) => {
           const isUser = msg.senderEmail === user.email;
           return (
-            <div
-              key={i}
-              className={`flex ${isUser ? "justify-end" : "justify-start"}`}
-            >
+            <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-xs p-3 rounded-2xl text-sm shadow-sm ${
                   isUser

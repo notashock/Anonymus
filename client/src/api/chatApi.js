@@ -1,11 +1,12 @@
 // src/api/chatApi.js
 import axios from "axios";
 
-// Use .env variable for base URL
+// ✅ Use environment variable for backend base URL
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api/chat`,
+  withCredentials: true, // allow cookies for OAuth2 sessions
 });
 
 // ✅ Login a user (set user online)
@@ -19,7 +20,7 @@ export const loginUser = async (email) => {
   }
 };
 
-// ✅ Logout user
+// ✅ Logout user (ends session + Google logout)
 export const logoutUser = async (email) => {
   try {
     const res = await api.post("/logout", { email });
@@ -70,6 +71,17 @@ export const getOnlineUserCount = async () => {
     return res.data;
   } catch (err) {
     console.error("Fetching online user count failed:", err);
+    throw err;
+  }
+};
+
+// ✅ Get currently authenticated user (OAuth)
+export const getCurrentUser = async () => {
+  try {
+    const res = await api.get("/me");
+    return res.data;
+  } catch (err) {
+    console.error("Fetching current user failed:", err);
     throw err;
   }
 };

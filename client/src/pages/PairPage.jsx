@@ -1,53 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   pairUsers,
   getOnlineUserCount,
-  getActiveSession,
+  getCurrentUser,
 } from "../api/chatApi";
 
 function PairPage() {
   const [loading, setLoading] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
   const [waitingMessage, setWaitingMessage] = useState("");
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Handle email from redirect or fallback to localStorage
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+  // ✅ Fetch authenticated user on mount
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const emailFromUrl = params.get("email");
-    const existingUser = JSON.parse(localStorage.getItem("user"));
-
-    if (emailFromUrl && (!existingUser || existingUser.email !== emailFromUrl)) {
-      localStorage.setItem("user", JSON.stringify({ email: emailFromUrl }));
-    } else if (!emailFromUrl && !existingUser) {
-      navigate("/"); // not logged in
-    }
-  }, [location.search, navigate]);
-
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  // Check active session on mount
-  useEffect(() => {
-    if (!user) return;
-
-    const checkActiveSession = async () => {
+    const fetchUser = async () => {
       try {
-        const session = await getActiveSession(user.email);
-        if (session) {
-          localStorage.setItem("session", JSON.stringify(session));
-          navigate("/chat");
+        const currentUser = await getCurrentUser();
+        if (currentUser?.email) {
+          setUser(currentUser);
+          localStorage.setItem("user", JSON.stringify(currentUser));
+        } else {
+          navigate("/"); // redirect if not authenticated
         }
       } catch (err) {
-        console.warn("No active session:", err);
+        console.error("Error fetching current user:", err);
+        navigate("/");
       }
     };
+    fetchUser();
+  }, [navigate]);
 
-    checkActiveSession();
-  }, [user, navigate]);
-
-  // Poll online user count
+  // ✅ Poll online user count
   useEffect(() => {
     const fetchOnline = async () => {
       try {
@@ -65,7 +52,10 @@ function PairPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ Pair user (backend now handles session reuse)
   const handlePair = async () => {
+    if (!user) return;
+
     setLoading(true);
     try {
       const session = await pairUsers();
@@ -84,26 +74,24 @@ function PairPage() {
     }
   };
 
-const handleLogout = async () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  try {
-    await fetch("http://localhost:8080/logout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user?.email }),
-      credentials: "include",
-    });
-  } catch (err) {
-    console.error("Error logging out:", err);
-  } finally {
-    localStorage.clear();
-    // let the backend redirect handle navigation
-    window.location.href = "http://localhost:8080/logout";
-  }
-};
+  // ✅ Logout handler
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/api/chat/logout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Error logging out:", err);
+    } finally {
+      localStorage.clear();
+      window.location.href = `${API_BASE}/api/chat/logout`;
+    }
+  };
 
-
-  // If user manually hits /pair after already paired, redirect them
+  // ✅ Auto-redirect if session already exists in localStorage
   useEffect(() => {
     const session = localStorage.getItem("session");
     if (session) navigate("/chat");
@@ -113,14 +101,17 @@ const handleLogout = async () => {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
       <div className="bg-white shadow-md rounded-2xl p-8 text-center w-96">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          Welcome, {user?.email}
+          {user ? `Welcome, ${user.email}` : "Loading user..."}
         </h2>
+
         <p className="text-gray-500 mb-4">
           Online users: <strong>{onlineCount}</strong>
         </p>
+
         {waitingMessage && (
           <p className="text-sm text-red-500 mb-3">{waitingMessage}</p>
         )}
+
         <button
           onClick={handlePair}
           disabled={loading || onlineCount < 2}
