@@ -1,4 +1,3 @@
-// src/pages/PairPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -14,24 +13,22 @@ function PairPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get user email from redirect query
+  // Handle email from redirect or fallback to localStorage
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const email = params.get("email");
+    const emailFromUrl = params.get("email");
+    const existingUser = JSON.parse(localStorage.getItem("user"));
 
-    if (!email) {
-      navigate("/"); // if no email, not logged in
-      return;
+    if (emailFromUrl && (!existingUser || existingUser.email !== emailFromUrl)) {
+      localStorage.setItem("user", JSON.stringify({ email: emailFromUrl }));
+    } else if (!emailFromUrl && !existingUser) {
+      navigate("/"); // not logged in
     }
-
-    // store user in localStorage
-    const userObj = { email };
-    localStorage.setItem("user", JSON.stringify(userObj));
   }, [location.search, navigate]);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Check if user has an active session on mount
+  // Check active session on mount
   useEffect(() => {
     if (!user) return;
 
@@ -43,14 +40,14 @@ function PairPage() {
           navigate("/chat");
         }
       } catch (err) {
-        console.error("No active session found:", err);
+        console.warn("No active session:", err);
       }
     };
 
     checkActiveSession();
   }, [user, navigate]);
 
-  // Fetch online user count periodically
+  // Poll online user count
   useEffect(() => {
     const fetchOnline = async () => {
       try {
@@ -59,7 +56,7 @@ function PairPage() {
         setOnlineCount(count);
         setWaitingMessage(count < 2 ? "Waiting for more users to come online..." : "");
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching online count:", err);
       }
     };
 
@@ -80,17 +77,37 @@ function PairPage() {
       localStorage.setItem("session", JSON.stringify(session));
       navigate("/chat");
     } catch (err) {
-      console.error(err);
+      console.error("Pairing failed:", err);
       alert("Pairing failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = () => {
+const handleLogout = async () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  try {
+    await fetch("http://localhost:8080/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user?.email }),
+      credentials: "include",
+    });
+  } catch (err) {
+    console.error("Error logging out:", err);
+  } finally {
     localStorage.clear();
-    navigate("/");
-  };
+    // let the backend redirect handle navigation
+    window.location.href = "http://localhost:8080/logout";
+  }
+};
+
+
+  // If user manually hits /pair after already paired, redirect them
+  useEffect(() => {
+    const session = localStorage.getItem("session");
+    if (session) navigate("/chat");
+  }, [navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
