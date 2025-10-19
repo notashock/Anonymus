@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,16 +22,19 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
-    @Value("${FRONTEND_URL}") // Inject frontend URL from env
+    @Value("${FRONTEND_URL}")
     private String frontendUrl;
 
-    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
+    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+                          ClientRegistrationRepository clientRegistrationRepository) {
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+        this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
     @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
@@ -39,7 +43,15 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .loginPage(frontendUrl) // dynamic frontend login page
+                .loginPage(frontendUrl) // frontend login page
+                .authorizationEndpoint(auth -> auth
+                        .authorizationRequestResolver(
+                                new CustomAuthorizationRequestResolver(
+                                        clientRegistrationRepository,
+                                        "/oauth2/authorization"
+                                )
+                        )
+                )
                 .successHandler(customOAuth2SuccessHandler)
             );
 
@@ -50,7 +62,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(frontendUrl)); // dynamic allowed origin
+        config.setAllowedOrigins(List.of(frontendUrl));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
