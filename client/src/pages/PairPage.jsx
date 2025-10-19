@@ -13,7 +13,7 @@ function PairPage() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE = import.meta.env.VITE_BASE_URL;
 
   // ✅ Fetch authenticated user on mount
   useEffect(() => {
