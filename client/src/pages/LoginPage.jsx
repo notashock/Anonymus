@@ -6,7 +6,7 @@ function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    const baseUrl = import.meta.env.VITE_BACKEND_URL;
+    const baseUrl = import.meta.env.VITE_BASE_URL;
     window.location.href = `${baseUrl}/oauth2/authorization/google`;
   };
 
