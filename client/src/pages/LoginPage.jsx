@@ -23,7 +23,7 @@ function LoginPage() {
           className="w-full flex items-center justify-center gap-3 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition disabled:opacity-70"
         >
           <img
-            src="https://developers.google.com/identity/images/g-logo.png"
+            src="../../src/assets/google.png"
             alt="Google Logo"
             className="w-5 h-5"
           />
