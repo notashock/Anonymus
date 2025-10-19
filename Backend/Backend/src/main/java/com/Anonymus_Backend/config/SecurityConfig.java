@@ -1,5 +1,6 @@
 package com.Anonymus_Backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -21,6 +22,9 @@ public class SecurityConfig {
 
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
+    @Value("${FRONTEND_URL}") // Inject frontend URL from env
+    private String frontendUrl;
+
     public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
@@ -35,7 +39,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .loginPage("http://localhost:5173/")
+                .loginPage(frontendUrl) // dynamic frontend login page
                 .successHandler(customOAuth2SuccessHandler)
             );
 
@@ -46,7 +50,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of(frontendUrl)); // dynamic allowed origin
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 

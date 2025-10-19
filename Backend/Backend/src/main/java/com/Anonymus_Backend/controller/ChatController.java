@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,9 +26,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/api/chat")
 @CrossOrigin
-
 public class ChatController {
     private final ChatService chatService;
+
+    @Value("${FRONTEND_URL}") // Inject from environment
+    private String frontendUrl;
 
     public ChatController(ChatService chatService) {
         this.chatService = chatService;
@@ -52,12 +57,11 @@ public class ChatController {
             System.err.println("Error during Spring logout: " + e.getMessage());
         }
 
-        // Redirect to Google logout, then back to your frontend
-        String googleLogoutUrl = "https://accounts.google.com/Logout?continue=http://localhost:5173/";
+        // Use environment variable for frontend redirect
+        String googleLogoutUrl = "https://accounts.google.com/Logout?continue=" + frontendUrl;
         response.sendRedirect(googleLogoutUrl);
         return ResponseEntity.ok().build();
     }
-
 
     @PostMapping("/pair")
     public ChatSession pairUsers() {
@@ -66,37 +70,33 @@ public class ChatController {
         return session;
     }
 
-//    @PostMapping("/messages")
-//    public Message sendMessage(@RequestBody ChatMessageRequest request) {
-//        return chatService.sendMessage(
-//                request.getSessionId(),
-//                request.getSenderEmail(),
-//                request.getContent()
-//        );
-//    }
-
     @GetMapping("/session/{email}")
     public ChatSession getActiveSession(@PathVariable String email) {
         return chatService.getActiveSessionForUser(email);
     }
 
-//    @GetMapping("/messages/{sessionId}")
-//    public List<Message> getMessages(@PathVariable Long sessionId) {
-//        return chatService.getMessages(sessionId);
-//    }
-    // Get all online users
     @GetMapping("/online")
     public List<User> getOnlineUsers() {
         return chatService.getOnlineUsers();
     }
 
-
-    // Get count of online users
     @GetMapping("/online/count")
     public Map<String, Integer> getOnlineUserCount() {
         int count = chatService.getOnlineUserCount();
         return Map.of("onlineUsers", count);
     }
 
+    // New endpoint to get the authenticated user's email
+    @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+        String email = oauthUser.getAttribute("email");
+        if (email != null) {
+            return chatService.getUserByEmail(email); // Make sure this method exists in your service
+        }
+        return null;
+    }
 }
-

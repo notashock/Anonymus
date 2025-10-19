@@ -10,11 +10,9 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Connect to WebSocket server and subscribe to a specific chat session.
- * @param {string} sessionId - The chat session ID
- * @param {function} onMessageReceived - Callback for received messages
- * @param {function} onConnected - Callback when connection succeeds
+ * Handles normal messages and system messages like partner disconnects.
  */
-export const connectWebSocket = (sessionId, onMessageReceived, onConnected) => {
+export const connectWebSocket = (sessionId, onMessageReceived, onConnected, onPartnerLeft) => {
   if (connected) return;
 
   const socket = new SockJS(`${BASE_URL}/ws`);
@@ -27,7 +25,14 @@ export const connectWebSocket = (sessionId, onMessageReceived, onConnected) => {
     // Subscribe to chat topic
     stompClient.subscribe(`/topic/session/${sessionId}`, (message) => {
       const msgBody = JSON.parse(message.body);
-      onMessageReceived(msgBody);
+
+      // Detect system messages
+      if (msgBody.senderEmail === "SYSTEM" && msgBody.content === "PARTNER_LEFT") {
+        console.warn("⚠️ Partner has disconnected from the session.");
+        if (onPartnerLeft) onPartnerLeft();
+      } else {
+        onMessageReceived(msgBody);
+      }
     });
 
     if (onConnected) onConnected();
@@ -37,10 +42,7 @@ export const connectWebSocket = (sessionId, onMessageReceived, onConnected) => {
 };
 
 /**
- * Send message through WebSocket
- * @param {string} sessionId - Chat session ID
- * @param {string} senderEmail - Sender email
- * @param {string} content - Message text
+ * Send a message through WebSocket
  */
 export const sendMessage = (sessionId, senderEmail, content) => {
   if (stompClient && connected) {

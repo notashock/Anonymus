@@ -1,17 +1,18 @@
 package com.Anonymus_Backend.service;
 
-import com.Anonymus_Backend.model.ChatSession;
-import com.Anonymus_Backend.model.ChatMessageRequest;
-import com.Anonymus_Backend.model.User;
-import com.Anonymus_Backend.repository.ChatSessionRepository;
-import com.Anonymus_Backend.repository.UserRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+
+import com.Anonymus_Backend.model.ChatMessageRequest;
+import com.Anonymus_Backend.model.ChatSession;
+import com.Anonymus_Backend.model.User;
+import com.Anonymus_Backend.repository.ChatSessionRepository;
+import com.Anonymus_Backend.repository.UserRepository;
 
 @Service
 public class ChatService {
@@ -77,11 +78,11 @@ public class ChatService {
         });
     }
 
-    // Pair random users
+    // Pair random users (with active session checkpoint)
     public ChatSession pairRandomUsers() {
+        // Fetch all online users who are not in an active session
         List<User> availableUsers = userRepo.findAll().stream()
                 .filter(User::isOnline)
-                .filter(user -> !isUserInActiveSession(user))
                 .collect(Collectors.toList());
 
         if (availableUsers.isEmpty()) return null;
@@ -89,6 +90,22 @@ public class ChatService {
         Collections.shuffle(availableUsers);
         User userToPair = availableUsers.get(0);
 
+        // ✅ Check if the user is already in an active session
+        ChatSession existingSession = sessionRepo.findAll().stream()
+                .filter(ChatSession::isActive)
+                .filter(s -> {
+                    String userId = userToPair.getId();
+                    return userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id());
+                })
+                .findFirst()
+                .orElse(null);
+
+        if (existingSession != null) {
+            // Return existing session if already paired
+            return existingSession;
+        }
+
+        // Find an existing session with an empty slot
         ChatSession sessionWithEmptySlot = sessionRepo.findAll().stream()
                 .filter(ChatSession::isActive)
                 .filter(s -> s.getUser1Id() == null || s.getUser2Id() == null)
@@ -101,13 +118,17 @@ public class ChatService {
             } else {
                 sessionWithEmptySlot.setUser2Id(userToPair.getId());
             }
-            sessionRepo.save(sessionWithEmptySlot);
-            return sessionWithEmptySlot;
+            return sessionRepo.save(sessionWithEmptySlot);
         }
 
-        if (availableUsers.size() < 2) return null;
+        // Create a new session only if there are at least 2 users available
+        List<User> freeUsers = availableUsers.stream()
+                .filter(u -> !isUserInActiveSession(u))
+                .collect(Collectors.toList());
 
-        User user2 = availableUsers.get(1);
+        if (freeUsers.size() < 2) return null;
+
+        User user2 = freeUsers.get(1);
         ChatSession newSession = ChatSession.builder()
                 .user1Id(userToPair.getId())
                 .user2Id(user2.getId())
@@ -135,7 +156,7 @@ public class ChatService {
         return userRepo.findByOnlineTrue().size();
     }
 
-    // Get active session for a specific user email (resolve email → userId first)
+    // Get active session for a specific user email
     public ChatSession getActiveSessionForUser(String email) {
         Optional<User> userOpt = userRepo.findByEmail(email);
         if (userOpt.isEmpty()) return null;
@@ -147,5 +168,11 @@ public class ChatService {
                 .filter(s -> userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id()))
                 .findFirst()
                 .orElse(null);
+    }
+
+    // Get user by email
+    public User getUserByEmail(String email) {
+        if (email == null || email.isEmpty()) return null;
+        return userRepo.findByEmail(email).orElse(null);
     }
 }
