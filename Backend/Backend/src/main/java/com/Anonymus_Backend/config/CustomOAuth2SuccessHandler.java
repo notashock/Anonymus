@@ -1,22 +1,26 @@
 package com.Anonymus_Backend.config;
 
-import com.Anonymus_Backend.service.ChatService;
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.Anonymus_Backend.service.ChatService;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final ChatService chatService;
+
+    @Value("${FRONTEND_URL}") // inject frontend URL from environment
+    private String frontendUrl;
 
     public CustomOAuth2SuccessHandler(ChatService chatService) {
         this.chatService = chatService;
@@ -32,13 +36,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = oauthUser.getAttribute("email");
 
         if (email != null) {
+            // Set user online in backend
             chatService.setUserOnline(email);
-            // Encode email for safe URL passing
-            String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
-            response.sendRedirect("http://localhost:5173/pair?email=" + encodedEmail);
+
+            // Redirect frontend to pair page using environment variable
+            response.sendRedirect(frontendUrl + "/pair");
         } else {
             // fallback redirect if no email found
-            response.sendRedirect("http://localhost:5173/");
+            response.sendRedirect(frontendUrl + "/");
         }
     }
 }

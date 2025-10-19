@@ -1,17 +1,18 @@
 package com.Anonymus_Backend.service;
 
-import com.Anonymus_Backend.model.ChatSession;
-import com.Anonymus_Backend.model.ChatMessageRequest;
-import com.Anonymus_Backend.model.User;
-import com.Anonymus_Backend.repository.ChatSessionRepository;
-import com.Anonymus_Backend.repository.UserRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+
+import com.Anonymus_Backend.model.ChatMessageRequest;
+import com.Anonymus_Backend.model.ChatSession;
+import com.Anonymus_Backend.model.User;
+import com.Anonymus_Backend.repository.ChatSessionRepository;
+import com.Anonymus_Backend.repository.UserRepository;
 
 @Service
 public class ChatService {
@@ -147,5 +148,12 @@ public class ChatService {
                 .filter(s -> userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id()))
                 .findFirst()
                 .orElse(null);
+    }
+
+      public User getUserByEmail(String email) {
+        if (email == null || email.isEmpty()) return null;
+
+        Optional<User> userOpt = userRepo.findByEmail(email);
+        return userOpt.orElse(null);
     }
 }

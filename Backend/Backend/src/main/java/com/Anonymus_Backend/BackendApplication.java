@@ -1,8 +1,9 @@
 package com.Anonymus_Backend;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class 	BackendApplication {
@@ -13,6 +14,7 @@ public class 	BackendApplication {
 		System.setProperty("MONGODB_DATABASE", dotenv.get("MONGODB_DATABASE"));
 		System.setProperty("GOOGLE_CLIENT_ID", dotenv.get("GOOGLE_CLIENT_ID"));
 		System.setProperty("GOOGLE_CLIENT_SECRET", dotenv.get("GOOGLE_CLIENT_SECRET"));
+		System.setProperty("FRONTEND_URL", dotenv.get("FRONTEND_URL"));
 		SpringApplication.run(BackendApplication.class, args);
 	}
 
