@@ -96,6 +96,6 @@ Frontend/
   ```bash
   git clone https://github.com/your-username/Anonymus.git
 cd Anonymus
-'''
+```
 </details>
 
