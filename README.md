@@ -99,7 +99,7 @@ Frontend/
 
   ### Clone the repository
   ```bash
-  git clone https://github.com/your-username/Anonymus.git
+  git clone https://github.com/yegireddypavan/Anonymus.git
   cd Anonymus
 ```
   ### Setup Backend
