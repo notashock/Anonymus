@@ -110,5 +110,15 @@ Frontend/
 
 mvn spring-boot:run
 ```
+ ### Setup Frontend
+ ```bash
+cd Frontend
+npm install
+npm start
+```
+### Access the App
 
+Frontend: http://localhost:3000
 
+Backend: http://localhost:8080
+</details>
