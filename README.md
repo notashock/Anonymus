@@ -88,9 +88,8 @@ Frontend/
 │   ├── index.html
 │   └── favicon.ico
 └── package.json
-'''
 </detials>
-
+---
 <details>
 <summary>🛠️ Setup Instructions</summary>
 1️⃣ Clone the repository
