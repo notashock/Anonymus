@@ -89,6 +89,7 @@ Frontend/
 │   └── favicon.ico
 └── package.json
 </detials>
+'''
 <details>
 <summary>🛠️ Setup Instructions</summary>
 
