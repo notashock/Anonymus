@@ -88,9 +88,11 @@ Frontend/
 │   ├── index.html
 │   └── favicon.ico
 └── package.json
+'''
 </detials>
 
-<details> <summary>🛠️ Setup Instructions</summary>
+<details>
+<summary>🛠️ Setup Instructions</summary>
 1️⃣ Clone the repository
 git clone https://github.com/your-username/Anonymus.git
 cd Anonymus
