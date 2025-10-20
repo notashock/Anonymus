@@ -89,10 +89,11 @@ Frontend/
 │   └── favicon.ico
 └── package.json
 </detials>
----
 <details>
 <summary>🛠️ Setup Instructions</summary>
-1️⃣ Clone the repository
+
+### 1️⃣ Clone the repository
+```bash
 git clone https://github.com/your-username/Anonymus.git
 cd Anonymus
 2️⃣ Setup Backend
@@ -109,22 +110,11 @@ mvn spring-boot:run
 cd Frontend
 npm install
 npm start
+
 4️⃣ Access the App
 
 Frontend: http://localhost:3000
 
 Backend: http://localhost:8080
 
-</details>
-
-<details>
-<summary>⚙️ Tech Stack</summary>
-
-**Frontend:** React.js, HTML, CSS, JavaScript  
-**Backend:** Spring Boot, Java 17, WebSocket  
-**Database:** MongoDB  
-**Authentication:** OTP-based Email verification  
-**Environment Management:** Dotenv  
-**Build Tool:** Maven  
-
-</details>
+</details> ```
