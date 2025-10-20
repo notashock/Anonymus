@@ -51,4 +51,25 @@ This project combines the power of:
 
 <details>
 <summary>📁 Project Structure</summary>
+Anonymus/
+├── Backend/
+│ ├── src/main/java/com/Anonymus_Backend/
+│ │ ├── controller/ # REST controllers
+│ │ ├── model/ # Entity classes
+│ │ ├── service/ # Business logic
+│ │ ├── repository/ # MongoDB repositories
+│ │ ├── config/ # Configuration files (CORS, EnvConfig, WebSocket)
+│ └── resources/
+│ ├── application.properties
+│ ├── static/
+│ ├── templates/
+├── Frontend/
+│ ├── src/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ ├── services/
+│ │ ├── App.js
+│ └── package.json
+└── README.md
+</details>
 
