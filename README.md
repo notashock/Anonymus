@@ -106,10 +106,15 @@ Frontend/
   ```bash
   cd Backend
 # Add your environment variables in .env
-# Example:
-# MONGODB_URI=your_mongodb_connection_string
-# GOOGLE_CLIENT_ID=your_google_client_id
-# GOOGLE_CLIENT_SECRET=your_google_client_secret
+# Example .env file for Anonymus Project
+
+MONGODB_URI=your_mongodb_connection_string
+MONGODB_DATABASE=anonymus_chat
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+FRONTEND_URL=http://localhost:5173
+
 
 mvn spring-boot:run
 ```
@@ -118,6 +123,8 @@ mvn spring-boot:run
 cd Frontend
 npm install
 npm start
+# Add your environment variables in .env
+VITE_BASE_URL=http://localhost:8080
 ```
 ### Access the App
 
