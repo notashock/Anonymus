@@ -98,6 +98,17 @@ Frontend/
   ```bash
   git clone https://github.com/your-username/Anonymus.git
   cd Anonymus
-</details>
 ```
+  ### Setup Backend
+  ```bash
+  cd Backend
+# Add your environment variables in .env
+# Example:
+# MONGODB_URI=your_mongodb_connection_string
+# GOOGLE_CLIENT_ID=your_google_client_id
+# GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+mvn spring-boot:run
+```
+
 
