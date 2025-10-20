@@ -93,12 +93,12 @@ Frontend/
 </details>
 <details> <summary>🛠️ Setup Instructions</summary>
 1️⃣ Clone the repository
-'''bash 
+```bash 
 git clone https://github.com/your-username/Anonymus.git
 cd Anonymus
 ```
 2️⃣ Setup Backend
-''' bash
+``` bash
 cd Backend
 # Add your environment variables in .env
 # Example:
@@ -107,4 +107,4 @@ cd Backend
 # GOOGLE_CLIENT_SECRET=your_google_client_secret
 
 mvn spring-boot:run
-'''
+```
