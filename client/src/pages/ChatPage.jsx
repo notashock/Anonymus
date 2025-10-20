@@ -40,7 +40,8 @@ function ChatPage() {
         if (msg.senderEmail === "SYSTEM" && msg.content === "PARTNER_LEFT") {
           handlePartnerLeft();
         } else {
-          setMessages((prev) => [...prev, msg]); // append both user & partner messages
+          // Append all messages from server, including your own
+          setMessages((prev) => [...prev, msg]);
         }
       },
       () => setStatus("connected"),
@@ -80,11 +81,8 @@ function ChatPage() {
     if (!input.trim() || status !== "connected") return;
 
     const text = input.trim();
-    const newMsg = { senderEmail: user.email, content: text, sessionId: session.id };
-
-    sendMessage(session.id, user.email, text);
-    setMessages((prev) => [...prev, newMsg]); // local append
-    setInput("");
+    sendMessage(session.id, user.email, text); // only send to server
+    setInput(""); // clear input
   };
 
   // Logout handler
