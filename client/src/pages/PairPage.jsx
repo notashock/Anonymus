@@ -1,6 +1,9 @@
+// src/pages/PairPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { pairUsers, getOnlineUserCount } from "../api/chatApi";
+import { pairUsers, getOnlineUserCount, getActiveSession } from "../api/chatApi";
+
+const API_BASE = import.meta.env.VITE_BASE_URL;
 
 function PairPage() {
   const [loading, setLoading] = useState(false);
@@ -9,8 +12,6 @@ function PairPage() {
   const [user, setUser] = useState(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  const API_BASE = import.meta.env.VITE_BASE_URL;
 
   // ✅ Check email param and verify user existence
   useEffect(() => {
@@ -31,10 +32,11 @@ function PairPage() {
         const exists = await res.json();
 
         if (exists?.exists) {
-          // ✅ Save verified user
           const userObj = { email };
           setUser(userObj);
           localStorage.setItem("user", JSON.stringify(userObj));
+          // ✅ Check for an active session before pairing
+          await fetchActiveSession(email);
         } else {
           console.warn("User not found in DB, redirecting to login...");
           navigate("/");
@@ -46,7 +48,22 @@ function PairPage() {
     };
 
     verifyUser(emailParam);
-  }, [searchParams, navigate, API_BASE]);
+  }, [searchParams, navigate]);
+
+  // ✅ Fetch active session for the user
+  const fetchActiveSession = async (email) => {
+    try {
+      const data = await getActiveSession(email)
+
+      if (data?.id) {
+        // Active session exists → skip pairing
+        localStorage.setItem("session", JSON.stringify(data));
+        navigate("/chat");
+      }
+    } catch (err) {
+      console.error("Error fetching active session:", err);
+    }
+  };
 
   // ✅ Poll online user count
   useEffect(() => {
@@ -66,7 +83,7 @@ function PairPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Pair user (backend now handles session reuse)
+  // ✅ Pair user (backend handles session reuse)
   const handlePair = async () => {
     if (!user) return;
     setLoading(true);
@@ -89,7 +106,7 @@ function PairPage() {
     }
   };
 
-  // ✅ Logout handler (includes backend logout + google revoke)
+  // ✅ Logout handler (includes backend logout)
   const handleLogout = async () => {
     try {
       await fetch(`${API_BASE}/api/chat/logout`, {
@@ -102,15 +119,9 @@ function PairPage() {
       console.error("Error logging out:", err);
     } finally {
       localStorage.clear();
-      window.location.href = `${API_BASE}/api/chat/logout`;
+      navigate("/");
     }
   };
-
-  // ✅ Auto-redirect if session already exists
-  useEffect(() => {
-    const session = localStorage.getItem("session");
-    if (session) navigate("/chat");
-  }, [navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50">

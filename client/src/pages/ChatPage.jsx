@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { connectWebSocket, sendMessage, disconnectWebSocket } from "../api/websocket";
 import { logoutUser } from "../api/chatApi";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 function ChatPage() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const session = JSON.parse(localStorage.getItem("session"));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [session, setSession] = useState(JSON.parse(localStorage.getItem("session")));
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -26,21 +28,52 @@ function ChatPage() {
       return;
     }
 
+    const handlePartnerLeft = async () => {
+      setStatus("partner_left");
+      alert("Your partner has disconnected. Trying to find a new partner...");
+      await findNewPartner();
+    };
+
     connectWebSocket(
       session.id,
       (msg) => {
         if (msg.senderEmail === "SYSTEM" && msg.content === "PARTNER_LEFT") {
-          setStatus("partner_left");
+          handlePartnerLeft();
         } else {
           setMessages((prev) => [...prev, msg]); // append both user & partner messages
         }
       },
       () => setStatus("connected"),
-      () => setStatus("error")
+      handlePartnerLeft
     );
 
     return () => disconnectWebSocket();
   }, [session?.id, user, navigate]);
+
+  // Fetch a new session from backend
+  const findNewPartner = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/session/${user.email}`);
+      if (!res.ok) throw new Error("Failed to fetch session");
+
+      const data = await res.json();
+      if (data?.id) {
+        // New session found, update local storage and state
+        localStorage.setItem("session", JSON.stringify(data));
+        setSession(data);
+        setMessages([]);
+        setStatus("connecting");
+        console.log("✅ Connected to new session:", data.id);
+      } else {
+        alert("No partner available at the moment.");
+        localStorage.removeItem("session");
+        navigate("/pair"); // redirect to pairing page
+      }
+    } catch (err) {
+      console.error("Error finding new partner:", err);
+      alert("Error finding new partner. Try again later.");
+    }
+  };
 
   // Send message handler
   const handleSend = () => {
@@ -67,11 +100,6 @@ function ChatPage() {
     }
   };
 
-  const handleFindPartner = () => {
-    localStorage.removeItem("session");
-    navigate("/pair");
-  };
-
   if (!user || !session) {
     return (
       <div className="h-screen flex items-center justify-center text-gray-600">
@@ -87,7 +115,7 @@ function ChatPage() {
       case "error":
         return "Connection failed. Try refreshing.";
       case "partner_left":
-        return "Your partner has left the chat.";
+        return "Partner disconnected. Looking for a new partner...";
       default:
         return messages.length === 0 ? "No messages yet." : "";
     }
@@ -131,18 +159,6 @@ function ChatPage() {
             </div>
           );
         })}
-
-        {status === "partner_left" && (
-          <div className="text-center text-red-600 mt-4 font-semibold">
-            Your partner has left.
-            <button
-              onClick={handleFindPartner}
-              className="ml-2 bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 transition"
-            >
-              Find New Partner
-            </button>
-          </div>
-        )}
 
         <div ref={messageEndRef} />
       </main>

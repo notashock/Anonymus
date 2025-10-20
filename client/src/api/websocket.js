@@ -1,4 +1,3 @@
-// src/api/websocket.js
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
@@ -22,7 +21,7 @@ export const connectWebSocket = (sessionId, onMessageReceived, onConnected, onPa
     connected = true;
     console.log("✅ Connected to WebSocket at:", BASE_URL);
 
-    // Subscribe to chat topic
+    // Correct subscription path (matches backend broker)
     stompClient.subscribe(`/topic/session/${sessionId}`, (message) => {
       const msgBody = JSON.parse(message.body);
 
