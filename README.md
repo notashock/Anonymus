@@ -89,3 +89,29 @@ Frontend/
 │   └── favicon.ico
 └── package.json
 </detials>
+
+<details> <summary>🛠️ Setup Instructions</summary>
+1️⃣ Clone the repository
+git clone https://github.com/your-username/Anonymus.git
+cd Anonymus
+2️⃣ Setup Backend
+cd Backend
+# Add your environment variables in .env
+# Example:
+# MONGODB_URI=your_mongodb_connection_string
+# GOOGLE_CLIENT_ID=your_google_client_id
+# GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+mvn spring-boot:run
+
+3️⃣ Setup Frontend
+cd Frontend
+npm install
+npm start
+4️⃣ Access the App
+
+Frontend: http://localhost:3000
+
+Backend: http://localhost:8080
+
+</details>
