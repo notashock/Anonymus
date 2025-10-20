@@ -13,3 +13,4 @@ com\Anonymus_Backend\repository\UserRepository.class
 com\Anonymus_Backend\repository\ChatSessionRepository.class
 com\Anonymus_Backend\controller\WebSocketChatController.class
 com\Anonymus_Backend\model\User.class
+com\Anonymus_Backend\config\CustomAuthorizationRequestResolver.class

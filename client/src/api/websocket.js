@@ -15,7 +15,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const connectWebSocket = (sessionId, onMessageReceived, onConnected, onPartnerLeft) => {
   if (connected) return;
 
-  const socket = new SockJS(`${BASE_URL}/ws`);
+  const socket = new SockJS(`${BASE_URL}/api/chat/ws`);
   stompClient = Stomp.over(socket);
 
   stompClient.connect({}, () => {
