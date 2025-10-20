@@ -175,4 +175,55 @@ public class ChatService {
     return userRepo.findByEmail(email).isPresent();
     }
 
+    /**
+ * Cleanup session on user logout.
+ * - If the other user is online, keep the session.
+ * - If the other user is offline or no other user exists, delete the session.
+ */
+public void handleLogoutCleanup(String email) {
+    Optional<User> userOpt = userRepo.findByEmail(email);
+    if (userOpt.isEmpty()) return;
+
+    User user = userOpt.get();
+    String userId = user.getId();
+
+    // Find all active sessions containing this user
+    List<ChatSession> sessions = sessionRepo.findAll().stream()
+            .filter(ChatSession::isActive)
+            .filter(s -> userId.equals(s.getUser1Id()) || userId.equals(s.getUser2Id()))
+            .collect(Collectors.toList());
+
+    for (ChatSession session : sessions) {
+        String otherUserId = userId.equals(session.getUser1Id()) ? session.getUser2Id() : session.getUser1Id();
+
+        if (otherUserId != null) {
+            Optional<User> otherUserOpt = userRepo.findById(otherUserId);
+            if (otherUserOpt.isPresent() && otherUserOpt.get().isOnline()) {
+                // Other user is online, just remove this user from session
+                if (userId.equals(session.getUser1Id())) {
+                    session.setUser1Id(null);
+                } else {
+                    session.setUser2Id(null);
+                }
+                sessionRepo.save(session);
+
+                // Notify the other user
+                ChatMessageRequest systemMsg = new ChatMessageRequest();
+                systemMsg.setSessionId(session.getId());
+                systemMsg.setSenderEmail("SYSTEM");
+                systemMsg.setContent("PARTNER_LEFT");
+                messagingTemplate.convertAndSend("/topic/session/" + session.getId(), systemMsg);
+
+            } else {
+                // Other user offline → delete session
+                sessionRepo.delete(session);
+            }
+        } else {
+            // No other user → delete session
+            sessionRepo.delete(session);
+        }
+    }
+}
+
+
 }

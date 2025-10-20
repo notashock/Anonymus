@@ -1,11 +1,9 @@
 package com.Anonymus_Backend.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.Anonymus_Backend.model.ChatSession;
 import com.Anonymus_Backend.model.User;
 import com.Anonymus_Backend.service.ChatService;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -41,26 +36,26 @@ public class ChatController {
         return chatService.setUserOnline(email);
     }
     
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody Map<String, String> body,
-                                    HttpServletRequest request,
-                                    HttpServletResponse response) throws IOException {
-        String email = body.get("email");
-        if (email != null) {
-            chatService.setUserOffline(email);
-        }
+    // @PostMapping("/logout")
+    // public ResponseEntity<Void> logout(@RequestBody Map<String, String> body,
+    //                                 HttpServletRequest request,
+    //                                 HttpServletResponse response) throws IOException {
+    //     String email = body.get("email");
+    //     if (email != null) {
+    //         chatService.setUserOffline(email);
+    //     }
 
-        try {
-            request.logout(); // Ends Spring Security session
-        } catch (Exception e) {
-            System.err.println("Error during Spring logout: " + e.getMessage());
-        }
+    //     try {
+    //         request.logout(); // Ends Spring Security session
+    //     } catch (Exception e) {
+    //         System.err.println("Error during Spring logout: " + e.getMessage());
+    //     }
 
-        // Use environment variable for frontend redirect
-        String googleLogoutUrl = "https://accounts.google.com/Logout?continue=" + frontendUrl;
-        response.sendRedirect(googleLogoutUrl);
-        return ResponseEntity.ok().build();
-    }
+    //     // Use environment variable for frontend redirect
+    //     String googleLogoutUrl = "https://accounts.google.com/Logout?continue=" + frontendUrl;
+    //     response.sendRedirect(googleLogoutUrl);
+    //     return ResponseEntity.ok().build();
+    // }
 
     @PostMapping("/pair")
     public ChatSession pairUsers() {
@@ -103,6 +98,14 @@ public class ChatController {
     public Map<String, Boolean> userExists(@RequestParam String email) {
         boolean exists = chatService.userExists(email);
         return Map.of("exists", exists);
+    }
+
+    @PostMapping("/logout")
+    public String logout(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        chatService.setUserOffline(email);
+        chatService.handleLogoutCleanup(email); // <-- cleanup session
+        return "Logged out";
     }
 
 

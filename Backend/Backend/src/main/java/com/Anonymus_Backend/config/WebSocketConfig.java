@@ -11,22 +11,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${FRONTEND_URL}") // Inject frontend URL from env
+    @Value("${FRONTEND_URL}")
     private String frontendUrl;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Clients can subscribe to topics like /topic/session/{sessionId}
-        config.enableSimpleBroker("/api/chat/topic");
-        // Prefix for messages sent from client to server
-        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/topic"); // <-- simple broker path
+        config.setApplicationDestinationPrefixes("/app"); // <-- client send prefix
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // STOMP endpoint for clients to connect
-        registry.addEndpoint("/api/chat/ws") // endpoint URL
-                .setAllowedOrigins(frontendUrl) // dynamic allowed origin
-                .withSockJS(); // enable SockJS fallback
+        registry.addEndpoint("/api/chat/ws")
+                .setAllowedOrigins(frontendUrl)
+                .withSockJS();
     }
 }
