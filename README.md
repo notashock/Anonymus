@@ -1,3 +1,17 @@
-🕵️‍♂️ Anonymus Chat Application
-A real-time anonymous chat platform built using Spring Boot, React, and MongoDB.
-It allows users to create sessions, join chat rooms, and exchange messages securely — all while staying anonymous.
+<details>
+<summary>🚀 Project Overview</summary>
+
+This is your overview paragraph.  
+You can write multiple lines here.
+
+</details>
+
+<details>
+<summary>⚙️ Tech Stack</summary>
+
+- **Backend:** Spring Boot  
+- **Frontend:** React.js  
+- **Database:** MongoDB  
+- **Authentication:** Google OAuth 2.0  
+
+</details>
