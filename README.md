@@ -128,12 +128,18 @@ Backend: http://localhost:8080
 </details>
 
 ---
-<details> <summary>📧 Contact</summary>
+<details>
+<summary>📧 Contact</summary>
 
-Authors: Pavan Yegireddy,Ashok Bavireddy
-Email: [pavany3712@gmail.com,
-ashuashok@gmail.com
-]
-GitHub: github.com/yegireddypavan
+**Authors:**  
+Pavan Yegireddy  
+Ashok Bavireddy  
+
+**Email:**  
+📩 [pavany3712@gmail.com](mailto:pavany3712@gmail.com)  
+📩 [ashuashok@gmail.com](mailto:ashuashok@gmail.com)  
+
+**GitHub:**  
+🔗 [github.com/yegireddypavan](https://github.com/yegireddypavan)
 
 </details>
