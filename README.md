@@ -49,32 +49,35 @@ This project combines the power of:
 
 ---
 
-<details>
-<summary>📁 Project Structure</summary>
-  '''
-Anonymus/
-├── Backend/
-│   ├── src/main/java/com/Anonymus_Backend/
-│   │   ├── controller/       # REST controllers
-│   │   ├── model/            # Entity classes
-│   │   ├── service/          # Business logic
-│   │   ├── repository/       # MongoDB repositories
-│   │   ├── config/           # Configuration files (CORS, EnvConfig, WebSocket)
-│   └── resources/
-│       ├── application.properties
-│       ├── static/
-│       ├── templates/
-├── Frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.js
-│   └── package.json
-└── README.md
-'''
-</details>
+## 📁 Project Structure
+
+### 🖥️ Frontend (/Frontend)
+
+```bash
+src/
+├── components/      # React UI Components
+├── pages/           # Different pages (Home, Chat, Login, etc.)
+├── services/        # API service calls
+├── App.js           # Main routing logic
+└── package.json     # Dependencies and scripts
+
 
 ---
 
+src/main/java/com/Anonymus_Backend/
+├── controller/      # REST Controllers
+├── model/           # Entity classes
+├── service/         # Business logic
+├── repository/      # MongoDB repositories
+├── config/          # Configuration (CORS, EnvConfig, WebSocket)
+└── BackendApplication.java  # Spring Boot main file
+
+resources/
+├── application.properties
+├── static/
+└── templates/
+Anonymus/
+├── Backend/
+├── Frontend/
+└── README.md
 
