@@ -59,3 +59,33 @@ Anonymus/
 ├── Backend/
 ├── Frontend/
 └── README.md
+### Backend
+Backend/
+├── src/
+│   ├── main/
+│   │   ├── java/com/Anonymus_Backend/
+│   │   │   ├── controller/      # REST Controllers
+│   │   │   ├── model/           # Entity classes
+│   │   │   ├── service/         # Business logic
+│   │   │   ├── repository/      # MongoDB Repositories
+│   │   │   ├── config/          # Config files (CORS, EnvConfig, WebSocket)
+│   │   │   └── BackendApplication.java  # Spring Boot main file
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       ├── static/
+│   │       └── templates/
+│   └── test/
+└── pom.xml
+### Frontend
+Frontend/
+├── src/
+│   ├── components/   # React components
+│   ├── pages/        # UI pages (Login, Chat, Home)
+│   ├── services/     # API services
+│   ├── App.js        # Main routing logic
+│   └── index.js      # Entry point
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+└── package.json
+</detials>
