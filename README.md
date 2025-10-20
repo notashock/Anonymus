@@ -91,6 +91,7 @@ Frontend/
 └── package.json
 ```
 </details>
+---
 <details>
   <summary>🛠️ Setup Instructions</summary>
 
@@ -122,6 +123,7 @@ Frontend: http://localhost:3000
 
 Backend: http://localhost:8080
 </details>
+---
 <details> <summary>📧 Contact</summary>
 
 Authors: Pavan Yegireddy,Ashok Bavireddy
