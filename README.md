@@ -147,7 +147,7 @@ Ashok Bavireddy
 📩 [ashubavireddy2015@gmail.com](mailto:ashubavireddy2015@gmail.com)  
 
 **GitHub:**  
-🔗 [github.com/yegireddypavan](https://github.com/yegireddypavan)
-🔗 [github.com/yegireddypavan](https://github.com/notashock)
+🔗 [yegireddypavan](https://github.com/yegireddypavan)
+🔗 [notashock](https://github.com/notashock)
 
 </details>
