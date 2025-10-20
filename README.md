@@ -92,10 +92,10 @@ Frontend/
 ```
 </details>
 <details> <summary>🛠️ Setup Instructions</summary>
+  ###clone the repository
+  ```bash
+  git clone https://github.com/your-username/Anonymus.git
+cd Anonymus
+'''
 </details>
 
-Frontend: http://localhost:3000
-
-Backend: http://localhost:8080
-
-</details> ```
