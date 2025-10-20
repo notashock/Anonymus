@@ -116,3 +116,15 @@ Frontend: http://localhost:3000
 Backend: http://localhost:8080
 
 </details>
+
+<details>
+<summary>⚙️ Tech Stack</summary>
+
+**Frontend:** React.js, HTML, CSS, JavaScript  
+**Backend:** Spring Boot, Java 17, WebSocket  
+**Database:** MongoDB  
+**Authentication:** OTP-based Email verification  
+**Environment Management:** Dotenv  
+**Build Tool:** Maven  
+
+</details>
