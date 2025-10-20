@@ -49,35 +49,13 @@ This project combines the power of:
 
 ---
 
-## 📁 Project Structure
+<details>
+<summary>📁 Project Structure</summary>
 
-### 🖥️ Frontend (/Frontend)
+### 🗂️ Root Folder
 
 ```bash
-src/
-├── components/      # React UI Components
-├── pages/           # Different pages (Home, Chat, Login, etc.)
-├── services/        # API service calls
-├── App.js           # Main routing logic
-└── package.json     # Dependencies and scripts
-
-
----
-
-src/main/java/com/Anonymus_Backend/
-├── controller/      # REST Controllers
-├── model/           # Entity classes
-├── service/         # Business logic
-├── repository/      # MongoDB repositories
-├── config/          # Configuration (CORS, EnvConfig, WebSocket)
-└── BackendApplication.java  # Spring Boot main file
-
-resources/
-├── application.properties
-├── static/
-└── templates/
 Anonymus/
 ├── Backend/
 ├── Frontend/
 └── README.md
-
