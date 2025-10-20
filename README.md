@@ -51,6 +51,7 @@ This project combines the power of:
 
 <details>
 <summary>📁 Project Structure</summary>
+
 Anonymus/
 ├── Backend/
 │ ├── src/main/java/com/Anonymus_Backend/
@@ -72,4 +73,7 @@ Anonymus/
 │ └── package.json
 └── README.md
 </details>
+
+---
+
 
