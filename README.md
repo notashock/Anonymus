@@ -89,5 +89,5 @@ Frontend/
 │   ├── index.html
 │   └── favicon.ico
 └── package.json
-
+```
 </details>
