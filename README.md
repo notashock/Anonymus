@@ -3,7 +3,7 @@
 A secure and anonymous chat platform built using **Spring Boot**, **React.js**, and **MongoDB**, allowing users to communicate without revealing their identity.  
 The system ensures privacy, message encryption, and seamless real-time chatting through WebSockets.
 
-
+---
 
 <details>
 <summary>🚀 Project Overview</summary>
@@ -18,7 +18,7 @@ This project combines the power of:
 
 </details>
 
-
+---
 
 <details>
 <summary>✨ Features</summary>
@@ -91,7 +91,9 @@ Frontend/
 └── package.json
 ```
 </details>
+
 ---
+
 <details>
   <summary>🛠️ Setup Instructions</summary>
 
@@ -122,7 +124,9 @@ npm start
 Frontend: http://localhost:3000
 
 Backend: http://localhost:8080
+
 </details>
+
 ---
 <details> <summary>📧 Contact</summary>
 
