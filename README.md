@@ -144,9 +144,10 @@ Ashok Bavireddy
 
 **Email:**  
 📩 [pavany3712@gmail.com](mailto:pavany3712@gmail.com)  
-📩 [ashuashok@gmail.com](mailto:ashuashok@gmail.com)  
+📩 [ashubavireddy2015@gmail.com](mailto:ashubavireddy2015@gmail.com)  
 
 **GitHub:**  
 🔗 [github.com/yegireddypavan](https://github.com/yegireddypavan)
+🔗 [github.com/yegireddypavan](https://github.com/notashock)
 
 </details>
